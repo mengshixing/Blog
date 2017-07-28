@@ -2,6 +2,9 @@
 # -*- coding: utf-8 -*-
 
 import asyncio
+import logging
+
+logging.basicConfig(level=logging.INFO)
 
 from aiohttp import web
 
@@ -18,6 +21,7 @@ async def init(loop):
     #loop.create_server()则利用asyncio创建TCP服务。
     srv =await loop.create_server(app.make_handler(),'127.0.0.1',5000)
     
+    logging.info('server started at http://127.0.0.1:9000...')
     return srv
     
 loop=asyncio.get_event_loop()
