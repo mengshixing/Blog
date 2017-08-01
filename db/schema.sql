@@ -7,7 +7,7 @@ create database blog;
 use blog;
 
 grant select, insert, update, delete on blog.* to 'root'@'localhost' identified by 'root';
-
+-- MEDIUMTEXT: 一个BLOB或TEXT列，最大长度为16777215(2^24-1)个字符。
 create table users (
     `id` varchar(50) not null,
     `email` varchar(50) not null,
@@ -45,3 +45,4 @@ create table comments (
     key `idx_created_at` (`created_at`),
     primary key (`id`)
 ) engine=innodb default charset=utf8;
+
