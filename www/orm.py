@@ -4,10 +4,21 @@
 import asyncio,logging
 import aiomysql
 
+log_file = "./basic_logger.log"
+ 
+logging.basicConfig(filename = log_file, level = logging.INFO)
+
 #定义日志
 def log(sql,args=()):
     logging.info('SQL:%s' % sql)
 
+#生成字符组
+def create_args_string(n):
+    L=[]
+    for i in range(n):
+        L.append('?')
+    return ','.join(L)
+    
 
 #创建连接池
 async def create_pool(loop,**kw):
@@ -41,7 +52,7 @@ async def create_pool(loop,**kw):
 #Select 
 async def select(sql,args,size=None):
     log(sql,args)
-    
+    logging.info(sql)
     global __pool   
     with (await __pool) as conn:
         #http://aiomysql.readthedocs.io/en/latest/cursors.html
@@ -131,59 +142,93 @@ class TextField(Field):
 #metaclass 元类,控制类的创建行为,类可以看成是元类创建的实例,动态修改类
 class ModelMetaclass(type):
     def __new__(cls,name,bases,attrs):
-        if name='Model':#排除Model类
+        if name=='Model':#排除Model类
             return type.__new__(cls,name,bases,attrs)
         
         tableName=attrs.get('__table__',None) or name
         logging.info('found model: %s (table: %s)' % (name, tableName))
         
         # 获取所有的Field和主键名:
-		mappings=dict()
-		fields=[]
-		primaryKey=None
-		for k,v in attrs.items():#查找Field属性放入字典
+        mappings=dict()
+        fields=[]
+        primaryKey=None
+        for k,v in attrs.items():#查找Field属性放入字典
             if isinstance(v,Field):
-				mappings[k]=v
+                mappings[k]=v
                 logging.info('found mapping: %s ==> %s' % (k, v))
-				if v.primary_key:#如果是主键
-					if primaryKey:
-						#主键重复了
-						raise RuntimeError('Duplicate primary key for field: %s' % k)
-					primaryKey = k
-				else:					 
-					fields.append(k)
-		if not primaryKey:
-			#遍历完之后发现没有主键
+                if v.primary_key:#如果是主键
+                    if primaryKey:
+                        #主键重复了
+                        raise RuntimeError('Duplicate primary key for field: %s' % k)
+                    primaryKey = k
+                else:                    
+                    fields.append(k)
+        if not primaryKey:
+            #遍历完之后发现没有主键
             raise RuntimeError('Primary key not found.')
         for k in mappings.keys():#从类属性中删除Field属性
             attrs.pop(k)    
-		#把不含主键的段组成字符串数组	
-		escaped_fields=list(map(lambda f:"'%s'" % f,fields))
+        #把不含主键的段组成字符串数组 
+        escaped_fields=list(map(lambda f:'%s' % f,fields))
         attrs['__mappings__']=mappings #保存属性和列的映射关系
         attrs['__table__']=tableName #表名简化为类名
-		attrs['__primary_key__'] = primaryKey # 主键属性名
+        attrs['__primary_key__'] = primaryKey # 主键属性名
         attrs['__fields__'] = fields # 除主键外的属性名集合
-		
-		# 构造默认的SELECT, INSERT, UPDATE和DELETE语句:
-        attrs['__select__'] = 'select `%s‘, %s from `%s`' % (primaryKey, ', '.join(escaped_fields), tableName)
-        attrs['__insert__'] = 'insert into `%s` (%s, `%s`) values (%s)' % (tableName, ', '.join(escaped_fields), primaryKey, create_args_string(len(escaped_fields) + 1))
-        attrs['__update__'] = 'update `%s` set %s where `%s`=?' % (tableName, ', '.join(map(lambda f: '`%s`=?' % (mappings.get(f).name or f), fields)), primaryKey)
-        attrs['__delete__'] = 'delete from `%s` where `%s`=?' % (tableName, primaryKey)
-		
-		
-        return type.__new__(cls,name,bases,attrs)
-		
-		
-		
-		
-            
         
-class Model():
-    pass
+        # 构造默认的SELECT, INSERT, UPDATE和DELETE语句:
+        attrs['__select__'] = 'select %s, %s from %s' % (primaryKey, ', '.join(escaped_fields), tableName)
+        attrs['__insert__'] = 'insert into "%s" (%s, "%s") values (%s)' % (tableName, ', '.join(escaped_fields), primaryKey, create_args_string(len(escaped_fields) + 1))
+        attrs['__update__'] = 'update "%s" set %s where "%s"=?' % (tableName, ', '.join(map(lambda f: '"%s"=?' % (mappings.get(f).name or f), fields)), primaryKey)
+        attrs['__delete__'] = 'delete from "%s" where "%s"=?' % (tableName, primaryKey)        
+        
+        return type.__new__(cls,name,bases,attrs)
+
+#任何继承自Model的类（比如User），会自动通过ModelMetaclass扫描映射关系，并存储到自身的类属性如__table__、__mappings__中      
+class Model(dict,metaclass=ModelMetaclass):
+    def __init__(self,**kw):
+        #调用上一个mro的初始化方法dict
+        super(Model,self).__init__(**kw)
+    def __getattr__(self,key):
+        try:
+            return self[key]
+        except KeyError:
+            raise AttributeError(r"'Model' object has no attribute '%s'" % key)
+    def __setattr__(self,key,value):
+        self[key]=value
+    
+    def getValue(self,key):
+        return getattr(self,key,None)
+        
+    def getValueOrDefault(self, key):
+        value = getattr(self, key, None)
+        if value is None:
+            field=self.__mappings__[key]
+            if field.default is not None:
+                #callable方法用来检测对象是否可被调用，可被调用指的是对象能否使用()括号的方法调用。
+                if callable(field.default):
+                    value=field.default()
+                else:
+                    value=field.default
+                logging.debug('using default value for %s: %s' % (key, str(value)))
+                setattr(self,key,value)
+        return value
+    #model继承了dict所以写法可以为user['id']和user.id 均可
     
     
+    # classmethod，是将该装饰器修饰的函数，第一个参数变为cls（平常是self）。
+    # self指向该类的实例，也就是一个对象，cls指向这个类本身
+    @classmethod
+    async def find(cls,pk):
+        ' find object by primary key. '
+        logging.info(pk)
+        rs=await select('%s where %s=?' % (cls.__select__,cls.__primary_key__),[pk],1)
+        if(len(rs)==0):
+            return None
+        else:
+            return cls(**rs[0])
+        
     
-    
+
     
     
     
