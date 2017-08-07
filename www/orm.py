@@ -226,8 +226,17 @@ class Model(dict,metaclass=ModelMetaclass):
             return None
         else:
             return cls(**rs[0])
-        
     
+	#查询全部
+    @classmethod
+    async def findall(cls,where=None,args=None,agrspk):
+        ' find object by primary key. '
+        logging.info(pk)
+        rs=await select('%s where %s=?' % (cls.__select__,cls.__primary_key__),[pk])
+        if(len(rs)==0):
+            return None
+        else:
+            return [cls(**r) for r in rs]
 
     
     
