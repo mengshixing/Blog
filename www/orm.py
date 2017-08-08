@@ -177,9 +177,9 @@ class ModelMetaclass(type):
         
         # 构造默认的SELECT, INSERT, UPDATE和DELETE语句:
         attrs['__select__'] = 'select %s, %s from %s' % (primaryKey, ', '.join(escaped_fields), tableName)
-        attrs['__insert__'] = 'insert into "%s" (%s, "%s") values (%s)' % (tableName, ', '.join(escaped_fields), primaryKey, create_args_string(len(escaped_fields) + 1))
-        attrs['__update__'] = 'update "%s" set %s where "%s"=?' % (tableName, ', '.join(map(lambda f: '"%s"=?' % (mappings.get(f).name or f), fields)), primaryKey)
-        attrs['__delete__'] = 'delete from "%s" where "%s"=?' % (tableName, primaryKey)        
+        attrs['__insert__'] = 'insert into %s (%s, %s) values (%s)' % (tableName, ', '.join(escaped_fields), primaryKey, create_args_string(len(escaped_fields) + 1))
+        attrs['__update__'] = 'update %s set %s where %s=?' % (tableName, ', '.join(map(lambda f: '%s=?' % (mappings.get(f).name or f), fields)), primaryKey)
+        attrs['__delete__'] = 'delete from %s where %s=?' % (tableName, primaryKey)        
         
         return type.__new__(cls,name,bases,attrs)
 
@@ -227,22 +227,60 @@ class Model(dict,metaclass=ModelMetaclass):
         else:
             return cls(**rs[0])
     
-	#查询全部
+    #查询全部
     @classmethod
-    async def findall(cls,where=None,args=None,agrspk):
-        ' find object by primary key. '
-        logging.info(pk)
-        rs=await select('%s where %s=?' % (cls.__select__,cls.__primary_key__),[pk])
+    async def findall(cls,where=None,args=None,**kw):
+        
+        sql=[cls.__select__]
+        if where is not None:
+            sql.append('where')
+            sql.append(where)           
+        if args is None:
+            args=[]
+        orderBy=kw.get('orderBy',None)
+        if orderBy is not None:
+            sql.append('order by')
+            sql.append(orderBy)     
+        
+        limit=kw.get('limit',None)
+        if limit is not None:
+            sql.append('limit')
+            #append和extend都仅只可以接收一个参数,分别对应limit 4 或者limit 1,4
+            if isinstance(limit,int):
+                sql.append('?')
+                args.append(limit)  
+            elif isinstance(limit,tuple) and len(limit)==2:
+                sql.append('?,?')
+                args.extend(limit)  
+        
+        rs=await select(' '.join(sql),args)
         if(len(rs)==0):
             return None
         else:
             return [cls(**r) for r in rs]
-
+            
     
+    async def save(self):
+        args=list(map(self.getValueOrDefault,self.__fields__))
+        args.append(self.getValueOrDefault(self.__primary_key__))
     
+        rs=await execute(self.__insert__,args)
+        if rs!=1:
+            logging.warn('failed to insert record: affected rows: %s' % rs)
     
+    #更新一个
+    async def update(self):    
+        args=list(map(self.getValue,self.__fields__))
+        args.append(self.getValue(self.__primary_key__))
     
+        rs=await execute(self.__update__,args)
+        if rs!=1:
+            logging.warn('failed to update record: affected rows: %s' % rs)
     
+    async def remove(self):
+        args=[]
+        args.append(self.getValue(self.__primary_key__))
     
-    
-    
+        rs=await execute(self.__delete__,args)
+        if rs!=1:
+            logging.warn('failed to remove record: affected rows: %s' % rs)

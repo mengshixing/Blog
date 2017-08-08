@@ -42,10 +42,13 @@ import sys
 
 #测试查询
 
-async def tt():
-	r=await model.User.find('1')
-	print(r)
-	
+async def tt(): 
+    #r=await model.User.find('1') 查
+    #r=await model.User(id=123, name='Michael',passwd='222',image='2.jpg',email='2@1.com').save() 增
+    #r=await model.User(id=123, name='Michael',passwd='222',image='2.jpg',email='3333@1222.com').update()
+    r=await model.User(id=123).remove()
+    #print(r)
+    
 loop=asyncio.get_event_loop()
 loop.run_until_complete(orm.create_pool(loop=loop,user='root',password='root',db='blog'))
 loop.run_until_complete(tt())
@@ -54,6 +57,6 @@ loop.run_until_complete(tt())
 #loop.run_until_complete(await User.find('1'))
 
 loop.close()
-sys.exit()#处理RuntimeError: Event loop is closed
+#sys.exit()#处理RuntimeError: Event loop is closed
 
 
