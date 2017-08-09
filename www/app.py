@@ -75,13 +75,13 @@ async def response_factory(app, handler):#函数返回值转化为`web.response`
     async def response(request):
         logging.info('Response handler...')
         r = await handler(request)
-        if isinstance(r, web.StreamResponse):
+        if isinstance(r, web.StreamResponse):#封装好的Response流
             #r.content_type = 'text/plain;charset=utf-8'
             return r
-        if isinstance(r, bytes):
+        if isinstance(r, bytes):#二进制文件
             resp = web.Response(body=r)
-            #resp.content_type = 'application/octet-stream'
-            resp.content_type = 'text/plain;charset=utf-8'
+            resp.content_type = 'application/octet-stream'
+            #resp.content_type = 'text/plain;charset=utf-8'
             return resp
         if isinstance(r, str):
             if r.startswith('redirect:'):#重定向
