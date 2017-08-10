@@ -183,7 +183,7 @@ def add_routes(app,module_name):
                 add_route(app,fn)
 #添加静态文件夹的路径
 def add_static(app):
-    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'static')#输出当前文件夹中'static'的路径
+    path = os.path.join(os.path.dirname(os.path.abspath(__file__)),'static')#输出当前文件夹中'static'的路径:绝对路径
     app.router.add_static('/static/',path)#prefix (str) – URL path prefix for handled static files
     logging.info('add static %s => %s'%('/static/',path))
     

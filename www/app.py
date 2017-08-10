@@ -75,6 +75,7 @@ async def response_factory(app, handler):#函数返回值转化为`web.response`
     async def response(request):
         logging.info('Response handler...')
         r = await handler(request)
+        logging.info(r)
         if isinstance(r, web.StreamResponse):#封装好的Response流
             #r.content_type = 'text/plain;charset=utf-8'
             return r

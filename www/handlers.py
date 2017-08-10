@@ -2,7 +2,7 @@
 # -*- coding: utf-8 -*-
 
 
-import re, time, json, logging, hashlib, base64, asyncio
+import re, time, json, logging, hashlib, base64, asyncio, model
 
 #import markdown2
 
@@ -22,3 +22,11 @@ async def index(request):
 async def handler_url_greeting(*,name,request):
     body='<h1>Awesome: /greeting %s</h1>'%name
     return body 
+    
+@get('/users')
+async def users(request):
+    users = await model.User.findall()
+    return {
+        '__template__': 'user.html',
+        'users': users
+    }
