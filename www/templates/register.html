@@ -1,0 +1,97 @@
+{% extends 'base.html' %}
+
+{% block title %}注册{% endblock %}
+
+{% block beforehead %}
+ <script>
+	function validateEmail(email) {
+		var re = /^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$/;
+		return re.test(email.toLowerCase());
+	}
+	$(function () {
+		var vm = new Vue({
+			el: '#vm',
+			data: {
+				name: '',
+				email: '',
+				password1: '',
+				password2: ''
+			},
+			methods: {
+				submit: function (event) {
+					event.preventDefault();
+					var $form = $('#vm');
+					if (! this.name.trim()) {
+						return $form.showFormError('请输入名字');
+					}
+					if (! validateEmail(this.email.trim().toLowerCase())) {
+						return $form.showFormError('请输入正确的Email地址');
+					}
+					if (this.password1.length < 6) {
+						return $form.showFormError('口令长度至少为6个字符');
+					}
+					if (this.password1 !== this.password2) {
+						return $form.showFormError('两次输入的口令不一致');
+					}
+					var email = this.email.trim().toLowerCase();
+					$form.postJSON('/api/users', {
+						name: this.name.trim(),
+						email: email,
+						passwd: CryptoJS.SHA1(email + ':' + this.password1).toString()
+					}, function (err, r) {
+						if (err) {
+							return $form.showFormError(err);
+						}
+						return location.assign('/');
+					});
+				}
+			}
+		});
+		$('#vm').show();
+	});
+</script>
+
+{% endblock %}
+ 
+{% block content %}
+ <div class="container">
+	<div class=" p-b-60">
+		<div class="row p-t-30">
+			<div class="col-md-6 col-sm-6">
+				<form id="vm" method="post" action="#">
+					<div class="row form-row">
+						<div class="col-md-10">
+							<input name="txtFirstName" id="textFirstName" type="text" class="form-control "
+								placeholder="Email">
+						</div>
+					</div>
+					<div class="row form-row">
+						<div class="col-md-10">
+							<input name="txtLastName" id="txtLastName" type="text" class="form-control" placeholder="Name">
+						</div>
+					</div>
+					<div class="row form-row">
+						<div class="col-md-10">
+							<input name="txtCompany" id="txtCompany" type="text" class="form-control" placeholder="Company/Orgarnization">
+						</div>
+					</div>
+					<div class="row form-row">
+						<div class="col-md-10">
+							<input name="txtEmailAddress" id="txtEmailAddress" type="text" class="form-control"
+								placeholder="Email address">
+						</div>
+					</div>
+					<div class="row form-row">
+						<div class="col-md-10">
+							<button type="button" id="button-send" class="btn btn-primary btn-cons">
+								Send</button>
+						</div>
+						<div id="success">Your message has been successfully!</div>
+						<div id="error">Unable to send your message, please try later.</div>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</div>
+{% endblock %}

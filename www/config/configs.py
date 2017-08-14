@@ -5,7 +5,7 @@
 Configuration
 '''
 
-import config_default
+from config import config_default
 
 class Dict(dict):
     '''
@@ -13,8 +13,8 @@ class Dict(dict):
     '''
     def __init__(self, names=(), values=(), **kw):
         super(Dict, self).__init__(**kw)
-		
-		# zip函数接受任意多个（包括0个和1个）序列作为参数，返回一个tuple列表
+        
+        # zip函数接受任意多个（包括0个和1个）序列作为参数，返回一个tuple列表
         for k, v in zip(names, values):
             self[k] = v
 
@@ -48,11 +48,11 @@ def toDict(d):
 configs = config_default.configs
 
 try:
-    import config_override
+    from config import config_override
     configs = merge(configs, config_override.configs)
 except ImportError:
     pass
 
 configs = toDict(configs)
 
-print(configs);
+#print(configs);

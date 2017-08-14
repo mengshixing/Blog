@@ -229,7 +229,7 @@ class Model(dict,metaclass=ModelMetaclass):
     
     #查询全部
     @classmethod
-    async def findall(cls,where=None,args=None,**kw):
+    async def findAll(cls,where=None,args=None,**kw):
         
         sql=[cls.__select__]
         if where is not None:
@@ -259,6 +259,18 @@ class Model(dict,metaclass=ModelMetaclass):
         else:
             return [cls(**r) for r in rs]
             
+    #查询条数
+    @classmethod
+    async def findNumber(cls, selectField, where=None, args=None):
+        ' find number by select and where. '
+        sql = ['select %s _num_ from `%s`' % (selectField, cls.__table__)]
+        if where:
+            sql.append('where')
+            sql.append(where)
+        rs = await select(' '.join(sql), args, 1)
+        if len(rs) == 0:
+            return None
+        return rs[0]['_num_']
     
     async def save(self):
         args=list(map(self.getValueOrDefault,self.__fields__))

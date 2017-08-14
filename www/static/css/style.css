@@ -3204,7 +3204,11 @@ margin-bottom:0px;
 #error{
 	width: 100%;
 	padding: 10px;
-	text-align: center;
+	text-align: left;
 	color: red;
 	display:none;
+	min-height: 50px;
+    position: relative;
+    margin-top: 50px;
+    padding-left:20px;
 }

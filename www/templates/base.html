@@ -3,7 +3,7 @@
 <head>
     <meta http-equiv="content-type" content="text/html;charset=UTF-8" />
     <meta charset="utf-8" />
-    <title>thempleite - Responsive Website Template</title>
+    <title>{% block title %} ? {% endblock %} - Blog</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
     <meta content="" name="description" />
     <meta content="" name="author" />
@@ -15,6 +15,7 @@
     <!-- BEGIN CSS TEMPLATE -->
     <link href="../static/css/style.css" rel="stylesheet" type="text/css" />
     <!-- END CSS TEMPLATE -->
+	{% block beforehead %}<!-- before head  -->{% endblock %}
 </head>
 <!-- END HEAD -->
 <body>
@@ -35,8 +36,19 @@
                             <li><a href="index.html">主页</a></li>
                             <li><a href="tour.html">日志</a></li>
                             <li><a href="pricing.html">GitHub</a></li>
-                            <li><a href="portfolio.html">登录</a></li>
-							<li><a href="contact.html">注册</a></li>
+							{% if __user__ %}
+							 <li class="uk-parent" data-uk-dropdown>
+								<a href="#0"><i class="uk-icon-user"></i> {{ __user__.name }}</a>
+								<div class="uk-dropdown uk-dropdown-navbar">
+									<ul class="uk-nav uk-nav-navbar">
+										<li><a href="/signout"><i class="uk-icon-sign-out"></i> 登出</a></li>
+									</ul>
+								</div>
+							</li>
+							{% else %}
+                            <li><a href="/login">登录</a></li>
+							<li><a href="/register">注册</a></li>
+							{% endif %}
                             <li><a href="contact.html">关于</a></li>
                         </ul>
                     </div>
@@ -51,7 +63,11 @@
                 Simple and clear, no hidden fees</p>
         </div>
         <div class="section white">
-            <div class="container p-t-50 p-b-50">
+			<!-- content -->
+            {% block content %}
+            {% endblock %}
+            <!-- // content -->
+            <div class="container p-t-50 p-b-50" style="display:none;">
                 <div class="p-t-10">
                     <div class="pricing t-mgr40">
                         <div class="col-sm-4">
