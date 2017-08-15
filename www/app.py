@@ -13,8 +13,10 @@ from aiohttp import web
 from jinja2 import Environment, FileSystemLoader
 
 import orm
-from clweb import add_routes, add_static,get,post
+from clweb import add_routes,add_static,get,post
 from aiohttp import web
+from model import User
+from handlers import *
 
 #初始化jinja2，以便其他函数使用jinja2模板
 def init_jinja2(app, **kw):
@@ -59,17 +61,21 @@ async def data_factory(app, handler):
         return (await handler(request))
     return parse_data
 
-# 暂时不用
 # 通过cookie找到当前用户信息，把用户绑定在request.__user__ 
 async def auth_factory(app, handler):
     async def auth(request):
-        logging.info('check user: %s %s' % (request.method, request.path))
-        cookie = request.cookies.get(COOKIE_NAME)
-        request.__user__ = await User.find_by_cookie(cookie)
-        if request.__user__ is not None:
-            logging.info('set current user: %s' % request.__user__.email)
-        return await handler(request)
+        request.__user__ = None
+        cookie_str = request.cookies.get(COOKIE_NAME)
+        if cookie_str:
+            user = await cookie2user(cookie_str)
+            if user:
+                logging.info('set current user: %s' % user.email)
+                request.__user__ = user
+        if request.path.startswith('/manage/') and (request.__user__ is None or not request.__user__.admin):
+            return web.HTTPFound('/signin')
+        return (await handler(request))
     return auth
+
     
 async def response_factory(app, handler):#函数返回值转化为`web.response`对象
     async def response(request):
@@ -98,6 +104,7 @@ async def response_factory(app, handler):#函数返回值转化为`web.response`
                 resp.content_type = 'application/json;charset=utf-8'
                 return resp
             else:#jinja2模板
+                r['__user__'] = request.__user__
                 resp = web.Response(body=app['__templating__'].get_template(template).render(**r).encode('utf-8'))
                 resp.content_type = 'text/html;charset=utf-8'
                 return resp
@@ -131,7 +138,7 @@ def datetime_filter(t):
 async def init(loop):
     await orm.create_pool(loop=loop,user='root',password='root',db='blog')
     #await orm.create_pool(loop=loop, host='127.0.0.1', port=3306, user='www', password='www', db='awesome')
-    app=web.Application(loop=loop,middlewares=[logger_factory,response_factory]);
+    app=web.Application(loop=loop,middlewares=[logger_factory,auth_factory,response_factory]);
     
     init_jinja2(app, filters=dict(datetime=datetime_filter))
     add_routes(app, 'handlers')

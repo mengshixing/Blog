@@ -38,15 +38,15 @@
                             <li><a href="pricing.html">GitHub</a></li>
 							{% if __user__ %}
 							 <li class="uk-parent" data-uk-dropdown>
-								<a href="#0"><i class="uk-icon-user"></i> {{ __user__.name }}</a>
-								<div class="uk-dropdown uk-dropdown-navbar">
+								<a href="/signout"><i class="uk-icon-user"></i> <strong>登出({{ __user__.name }})</strong></a>
+								<!-- <div class="uk-dropdown uk-dropdown-navbar">
 									<ul class="uk-nav uk-nav-navbar">
 										<li><a href="/signout"><i class="uk-icon-sign-out"></i> 登出</a></li>
 									</ul>
-								</div>
+								</div> -->
 							</li>
 							{% else %}
-                            <li><a href="/login">登录</a></li>
+                            <li><a href="/signin">登录</a></li>
 							<li><a href="/register">注册</a></li>
 							{% endif %}
                             <li><a href="contact.html">关于</a></li>
@@ -237,7 +237,10 @@
     <!-- END CORE JS FRAMEWORK -->	
     <!-- BEGIN JS PLUGIN -->
 	<script type="text/javascript" src="../static/js/jquery.nicescroll.min.js"></script>
-    <!-- END JS PLUGIN -->
+    <!-- END JS PLUGIN -->	
+	<!--script type="text/javascript" src="../static/js/sha1.min.js"></script-->
+	<script type="text/javascript" src="../static/js/sha1.js"></script>
 	<script type="text/javascript" src="../static/js/core.js"></script>
+	{% block afterbody %}<!-- before head  -->{% endblock %}
 </body>
 </html>

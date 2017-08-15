@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}注册{% endblock %}
+{% block title %}登录{% endblock %}
  
 {% block content %}
  <div class="container">
@@ -15,23 +15,14 @@
 					</div>
 					<div class="row form-row">
 						<div class="col-md-10">
-							<input name="name" id="name" type="text" class="form-control" placeholder="Username">
-						</div>
-					</div>
-					<div class="row form-row">
-						<div class="col-md-10">
 							<input name="password1" id="password1" type="text" class="form-control" placeholder="Password">
 						</div>
 					</div>
-					<div class="row form-row">
-						<div class="col-md-10">
-							<input name="password2" id="password2" type="text" class="form-control"	placeholder="Confirm Password">
-						</div>
-					</div>
+
 					<div class="row form-row">
 						<div class="col-md-10">
 							<button type="submit" id="button-send" class="btn btn-primary btn-cons">
-								注册</button>
+								登陆</button>
 						</div>
 						<div id="success">Your message has been successfully!</div>
 						<div id="error">Unable to send your message, please try later.</div>
@@ -45,7 +36,6 @@
 
 {% block afterbody %}
  <script>
-	console.log('submit sss start');
 	function validateEmail(email) {
 		var re = /^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$/;
 		return re.test(email.toLowerCase());
@@ -60,28 +50,18 @@
 			console.log('submit start');
 			e.preventDefault();			
 			//var $form = $('#vm');
-			var name = $('#name').val().trim();
-			var email = $('#email').val().trim().toLowerCase();
+			var email = $('#email').val().trim().toLowerCase();	
 			var password1 = $('#password1').val().trim();
-			var password2 = $('#password2').val().trim();
-			console.log(email);
-			
+	
 			if (!validateEmail(email)) {
 				showFormError('请输入正确的Email地址');
 			}
-			else if ($('#name').val().trim()=='') {
-				showFormError('请输入名字');
-			}
 			else if (password1.length < 6) {
 				showFormError('口令长度至少为6个字符');
-			}
-			else if (password1 !== password2) {
-				showFormError('两次输入的口令不一致');
-			}
+			}	
 			else{
-				$.post('/api/users',{
+				$.post('/api/authenticate',{
 					email: email,
-					name:name,
 					passwd: CryptoJS.SHA1(email + ':' + password1).toString()
 				},function (err, r) {
 					if(r=='success')

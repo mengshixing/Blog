@@ -6,17 +6,19 @@ import re, time, json, logging, hashlib, base64, asyncio, model
 
 #import markdown2
 
-from model import Blog,User
-
+from model import *
 from aiohttp import web
 
 from clweb import get, post
-from apier import APIValueError,APIResourceNotfoundError,Page
+from apier import APIValueError,APIResourceNotfoundError,Page,APIError
 
-from config.configs import *
+from config import configs
+log_file = "./basic_logger.log"
+ 
+logging.basicConfig(filename = log_file, level = logging.INFO)
 
 COOKIE_NAME = 'blogsession'
-#_COOKIE_KEY = configs.configs.session.secret
+_COOKIE_KEY = configs.configs.session.secret
 
 def get_page_index(page_str):
     p = 1
@@ -89,6 +91,19 @@ def register():
     return {
         '__template__': 'register.html'
 }
+@get('/signin')
+def signin():
+    return {
+        '__template__': 'signin.html'
+}
+@get('/signout')
+def signout(request):
+    #request.getHeader("Referer")用于获取来源页地址
+    referer = request.headers.get('Referer')
+    r = web.HTTPFound(referer or '/')
+    r.set_cookie(COOKIE_NAME, '-deleted-', max_age=0, httponly=True)
+    logging.info('user signed out.')
+    return r
     
 _RE_EMAIL = re.compile(r'^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$')
 _RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
@@ -102,7 +117,8 @@ async def api_register_user(*, email, name, passwd):
     if not passwd or not _RE_SHA1.match(passwd):
         raise APIValueError('passwd')
     users = await User.findAll('email=?', [email])
-    if len(users) > 0:
+    
+    if users is not None:
         raise APIError('register:failed', 'email', 'Email is already in use.')
     uid = next_id()
     sha1_passwd = '%s:%s' % (uid, passwd)
@@ -116,6 +132,32 @@ async def api_register_user(*, email, name, passwd):
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
+
+#登录
+@post('/api/authenticate')
+async def authenticate(*, email, passwd):
+    if not email:
+        raise APIValueError('email', 'Invalid email.')
+    if not passwd:
+        raise APIValueError('passwd', 'Invalid password.')
+    users = await User.findAll('email=?', [email])
+    if users is None:
+        raise APIValueError('email', 'Email not exist.')
+    user = users[0]
+    # check passwd:
+    sha1 = hashlib.sha1()
+    sha1.update(user.id.encode('utf-8'))
+    sha1.update(b':')
+    sha1.update(passwd.encode('utf-8'))
+    if user.passwd != sha1.hexdigest():
+        raise APIValueError('passwd', 'Invalid password.')
+    # authenticate ok, set cookie:
+    r = web.Response()
+    r.set_cookie(COOKIE_NAME, user2cookie(user, 86400), max_age=86400, httponly=True)
+    user.passwd = '******'
+    r.content_type = 'application/json'
+    r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
+    return r    
     
 # just for test
 @get('/index')

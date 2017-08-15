@@ -143,7 +143,7 @@ $(document).ready(function () {
 
     });
 	
-	$('#button-send').click(function(event){
+/* 	$('#button-send').click(function(event){
 		$('#button-send').html('Sending E-Mail...');
 		event.preventDefault();		
 		$.ajax({
@@ -169,7 +169,7 @@ $(document).ready(function () {
 		});
 		
 	});
-
+ */
 });	
 
 
