@@ -33,23 +33,27 @@
                     </div>
                     <div class="navbar-collapse collapse">
                         <ul class="nav navbar-nav navbar-right">
-                            <li><a href="index.html">主页</a></li>
-                            <li><a href="tour.html">日志</a></li>
+                            <li><a href="index.html">Home</a></li>
+                            <li><a href="tour.html">Blogs</a></li>
                             <li><a href="pricing.html">GitHub</a></li>
 							{% if __user__ %}
-							 <li class="uk-parent" data-uk-dropdown>
-								<a href="/signout"><i class="uk-icon-user"></i> <strong>登出({{ __user__.name }})</strong></a>
-								<!-- <div class="uk-dropdown uk-dropdown-navbar">
-									<ul class="uk-nav uk-nav-navbar">
-										<li><a href="/signout"><i class="uk-icon-sign-out"></i> 登出</a></li>
-									</ul>
+								
+								 <li class="uk-parent" data-uk-dropdown>
+									<a href="/signout"><i class="uk-icon-user"></i> <strong>Logout({{ __user__.name }})</strong></a>
+									<!-- <div class="uk-dropdown uk-dropdown-navbar">
+										<ul class="uk-nav uk-nav-navbar">
+											<li><a href="/signout"><i class="uk-icon-sign-out"></i> 登出</a></li>
+										</ul>
 								</div> -->
+								{% if __user__.admin==1 %}
+								<li><a href="/manage">Manage</a></li>								
+								{% endif %}
 							</li>
 							{% else %}
-                            <li><a href="/signin">登录</a></li>
-							<li><a href="/register">注册</a></li>
+                            <li><a href="/signin">Login</a></li>
+							<li><a href="/register">Register</a></li>
 							{% endif %}
-                            <li><a href="contact.html">关于</a></li>
+                            <li><a href="contact.html">About</a></li>
                         </ul>
                     </div>
                     <!--/.nav-collapse -->
@@ -62,10 +66,19 @@
             <p>
                 Simple and clear, no hidden fees</p>
         </div>
-        <div class="section white">
+        <div class="section white main_content">
 			<!-- content -->
-            {% block content %}
-            {% endblock %}
+			<div class="leftpanel">
+				<a href="#" class="list-group-item">Manage Blogs</a>
+				<a href="#" class="list-group-item">Manage Users</a>
+				<a href="#" class="list-group-item">Manage Comments</a>
+				<a href="/create" class="list-group-item">Create A Blog</a>
+			</div>		
+			<div class="mainpanel">
+				{% block content %}
+				{% endblock %}
+			</div>				
+ 
             <!-- // content -->
             <div class="container p-t-50 p-b-50" style="display:none;">
                 <div class="p-t-10">
@@ -189,9 +202,7 @@
                 <div class="p-t-30 p-b-50">
                     <div class="row">
                         <div class="col-md-2 col-lg-2 col-sm-2 col-xs-12 xs-m-b-20">
-                            <img src="assets/img/logo_condensed.png" alt="" data-src="assets/img/logo_condensed.png"
-                                data-src-retina="assets/img/logo2x.png" width="119" height="22" />
-                            <br />
+							Winter Is Coming 
                             <br />
                             © Frittt Templates.
                             <br />

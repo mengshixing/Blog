@@ -91,6 +91,16 @@ def register():
     return {
         '__template__': 'register.html'
 }
+@get('/manage')
+def register():
+    return {
+        '__template__': 'manage.html'
+}
+@get('/create')
+def register():
+    return {
+        '__template__': 'edit_blog.html'
+}
 @get('/signin')
 def signin():
     return {
