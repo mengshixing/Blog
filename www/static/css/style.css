@@ -3225,3 +3225,19 @@ margin-bottom:0px;
 .mainpanel{
 	margin-left: 230px;
 }
+.uk-form-label.line{
+    top: 10px;
+    position: relative;
+}
+.uk-form-controls.line{
+	position: relative;
+    /* height: 30px; */
+    top: 10px;
+    width: 80%
+}
+.uk-form-controls input,.uk-form-controls textarea{
+	width: 80%;
+}
+.uk-form-row{
+    margin: 10px 0px;
+}
