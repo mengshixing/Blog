@@ -64,31 +64,31 @@ $(function () {
     </div>
 
     <div id="vm" class="uk-width-2-3">
-        <form v-on="submit: submit" class="uk-form uk-form-stacked">
+        <form id="createblog" class="uk-form uk-form-stacked">
             <div class="uk-alert uk-alert-danger uk-hidden"></div>
             <div class="uk-form-row">
                 <label class="uk-form-label line">标题:</label>
                 <div class="uk-form-controls line">
-                    <input v-model="name" name="name" type="text" placeholder="标题" class="uk-width-1-1">
+                    <input id="title" type="text" placeholder="标题" class="uk-width-1-1">
                 </div>
             </div>
             <div class="uk-form-row">
                 <label class="uk-form-label line">摘要:</label>
                 <div class="uk-form-controls line">
-                    <textarea v-model="summary" rows="4" name="summary" placeholder="摘要" class="uk-width-1-1" style="resize:none;"></textarea>
+                    <textarea id="summary" placeholder="摘要" class="uk-width-1-1" style="resize:none;"></textarea>
                 </div>
             </div>
             <div class="uk-form-row">
                 <label class="uk-form-label line">内容:</label>
                 <div class="uk-form-controls line">
-                    <textarea v-model="content" rows="16" name="content" placeholder="内容" class="uk-width-1-1" style="resize:none;"></textarea>
+                    <!--textarea v-model="content" rows="16" name="content" placeholder="内容" class="uk-width-1-1" style="resize:none;"></textarea-->
 					<textarea id="text-input" oninput="this.editor.update()" rows="6" cols="60">Type **Markdown** here.</textarea>
-					<div id="preview"> </div>
+					<div id="preview" style="display:none"> </div>
                 </div>
             </div>
             <div class="uk-form-row">
-                <button type="submit" class="uk-button uk-button-primary"><i class="uk-icon-save"></i> 保存</button>
-                <a href="/manage/blogs" class="uk-button"><i class="uk-icon-times"></i> 取消</a>
+                <button type="submit" class="btn btn-primary"><i class="uk-icon-save"></i> 保存</button>
+                <a href="/manage/blogs" class="btn btn-cancel"><i class="uk-icon-times"></i> 取消</a>
             </div>
         </form>
     </div>
@@ -97,14 +97,43 @@ $(function () {
 {% endblock %}
 {% block afterbody %}
     <script>
-      function Editor(input, preview) {
-        this.update = function () {
-          preview.innerHTML = markdown.toHTML(input.value);
-        };
-        input.editor = this;
-        this.update();
-      }
-      var edit= function (id) { return document.getElementById(id); };
-      new Editor(edit("text-input"), edit("preview"));
+		//markdown 预览
+		function Editor(input, preview) {
+			this.update = function () {
+			  preview.innerHTML = markdown.toHTML(input.value);
+			};
+			input.editor = this;
+			this.update();
+		}
+		var edit= function (id) { return document.getElementById(id); };
+		new Editor(edit("text-input"), edit("preview"));
+	
+		//保存
+		$("#createblog").submit(function(e){
+			console.log('submit start');
+			e.preventDefault();		
+			
+			$.post('/api/updateblog',{
+				title: $('#title').val().trim(),
+				summary: $('#summary').val().trim(),
+				content: $('#text-input').val().trim()
+			},function (err, r) {
+				if(r=='success')
+					if (err.error!= undefined) {
+						showFormError(err.message);
+					}else{
+						location.assign('/manage');
+					}
+				else{
+					showFormError('请求异常,请稍后再试~');
+				}
+			});
+		});
+		//展示错误
+		function showFormError(msg){
+			$('#error').html(msg);
+			$('#error').show();
+		}
+	  
     </script>
 {% endblock %}

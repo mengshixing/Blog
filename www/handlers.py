@@ -19,6 +19,10 @@ logging.basicConfig(filename = log_file, level = logging.INFO)
 
 COOKIE_NAME = 'blogsession'
 _COOKIE_KEY = configs.configs.session.secret
+#验证管理员权限
+def check_admin(request):
+    if request.__user__ is None or not request.__user__.admin:
+        raise APIPermissionError()
 
 def get_page_index(page_str):
     p = 1
@@ -92,12 +96,28 @@ def register():
         '__template__': 'register.html'
 }
 @get('/manage')
-def register():
+def manage():
     return {
         '__template__': 'manage.html'
 }
+@get('/manage/blogs')
+async def manage(request,*,page='1'):
+    check_admin(request)    
+    page_index = get_page_index(page)    
+    num = await Blog.findNumber('count(id)')
+    #num = await User.findNumber('count(id)')
+    p = Page(num, page_index)
+    if num == 0:
+        blogs=()
+    blogs = await Blog.findAll(orderBy='created_at desc', limit=(p.offset, p.limit))
+    
+    return {
+        'page':p,
+        'blogs':blogs,
+        '__template__': 'manage.html'
+    }
 @get('/create')
-def register():
+def create():
     return {
         '__template__': 'edit_blog.html'
 }
@@ -118,6 +138,7 @@ def signout(request):
 _RE_EMAIL = re.compile(r'^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$')
 _RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
 
+#注册
 @post('/api/users')
 async def api_register_user(*, email, name, passwd):
     if not name or not name.strip():
@@ -168,7 +189,27 @@ async def authenticate(*, email, passwd):
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r    
-    
+ 
+#写笔记
+@post('/api/updateblog')
+async def updateblog(request,*, title, summary,content):
+    check_admin(request)
+    if not title:
+        raise APIValueError('title', 'title cannot be empty.')
+    if not summary:
+        raise APIValueError('summary', 'summary cannot be empty.')
+    if not content:
+        raise APIValueError('content', 'content cannot be empty.')
+    blogs = await Blog.findAll('name=?', [title])
+    if blogs is not None:
+        blog = blogs[0]
+    blog=Blog(user_id=request.__user__.id, user_name=request.__user__.name, user_image=request.__user__.image, 
+    name=title, summary=summary, content=content);   
+    await blog.save()    
+    r = web.Response()    
+    r.content_type = 'application/json'
+    r.body = json.dumps(blog, ensure_ascii=False).encode('utf-8')
+    return r     
 # just for test
 @get('/index')
 async def index(request):

@@ -689,6 +689,10 @@ line-height: 21px;
 	color: #fff;
     background-color: #2ec574;
 }
+.btn-cancel{
+	background-color: #5e5e5e;
+	color: #fff;
+}
 .btn-primary:hover, .btn-primary:focus, .btn-primary:active, .btn-primary.active, .btn-primary.disabled, .btn-primary[disabled] {
     background-color: #2ec574;
     *background-color: #2ec574;
@@ -3240,4 +3244,10 @@ margin-bottom:0px;
 }
 .uk-form-row{
     margin: 10px 0px;
+}
+#hoverclock{
+	position: fixed;
+    z-index: 99;
+    right: 50px;
+    top: 20px;
 }

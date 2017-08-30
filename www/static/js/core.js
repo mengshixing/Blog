@@ -3,7 +3,26 @@ $(document).ready(function () {
     if ($.fn.unveil) {
         $("img").unveil();
     }
-
+	
+	
+	/**** clock ****/
+	if($.fn.hoverclock){
+		$("#hoverclock").hoverclock({ 
+			"h_height": "300",
+			"h_width": "300", 
+			"h_backColor": "antiquewhite", 
+			"h_radius": "50%",
+			"h_linkText": "winter is coming",
+			//h_linkText: "HoverClock",
+            "h_linkUrl": "",
+            "h_linkColor": "LightSkyBlue",
+            "h_linkSize":"22px"
+		});
+	}
+	
+	//console.log($.fn);
+	
+	
     /**** Scroller ****/
     if ($.fn.niceScroll) {
         var mainScroller = $("html").niceScroll({

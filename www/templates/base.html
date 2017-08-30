@@ -11,6 +11,7 @@
     <link href="../static/bootstrap/css/bootstrap.min.css" rel="stylesheet" type="text/css" />
     <link href="../static/bootstrap/css/bootstrap-theme.min.css" rel="stylesheet" type="text/css" />
     <link href="../static/font-awesome/css/font-awesome.min.css" rel="stylesheet" type="text/css" />
+	<link href="../static/css/jquery.hoverclock.css" rel="stylesheet" type="text/css" />
     <!-- END CORE CSS FRAMEWORK -->
     <!-- BEGIN CSS TEMPLATE -->
     <link href="../static/css/style.css" rel="stylesheet" type="text/css" />
@@ -61,6 +62,7 @@
             </div>
         </div>
         <div class="section grey text-center m-t-60 p-t-40 p-b-40" id="banner-footer">
+			<div id="hoverclock"></div>
             <h2 class="normal m-b-10">
                 Pricing and Plans</h2>
             <p>
@@ -69,7 +71,7 @@
         <div class="section white main_content">
 			<!-- content -->
 			<div class="leftpanel">
-				<a href="#" class="list-group-item">Manage Blogs</a>
+				<a href="/manage/blogs" class="list-group-item">Manage Blogs</a>
 				<a href="#" class="list-group-item">Manage Users</a>
 				<a href="#" class="list-group-item">Manage Comments</a>
 				<a href="/create" class="list-group-item">Create A Blog</a>
@@ -252,6 +254,7 @@
 	<!--script type="text/javascript" src="../static/js/sha1.min.js"></script-->
 	<script type="text/javascript" src="../static/js/sha1.js"></script>
 	<script type="text/javascript" src="../static/js/markdown.js"></script>
+	<script type="text/javascript" src="../static/js/jquery.hoverclock.js"></script>
 	<script type="text/javascript" src="../static/js/core.js"></script>
 
 	{% block afterbody %}<!-- before head  -->{% endblock %}
