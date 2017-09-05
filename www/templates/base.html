@@ -70,12 +70,14 @@
         </div>
         <div class="section white main_content">
 			<!-- content -->
+			{% if __user__ and __user__.admin==1 %}
 			<div class="leftpanel">
 				<a href="/manage/blogs" class="list-group-item">Manage Blogs</a>
 				<a href="#" class="list-group-item">Manage Users</a>
 				<a href="#" class="list-group-item">Manage Comments</a>
 				<a href="/create" class="list-group-item">Create A Blog</a>
 			</div>		
+			{% endif %}
 			<div class="mainpanel">
 				{% block content %}
 				{% endblock %}

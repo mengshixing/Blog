@@ -155,7 +155,7 @@ class ModelMetaclass(type):
         for k,v in attrs.items():#查找Field属性放入字典
             if isinstance(v,Field):
                 mappings[k]=v
-                logging.info('found mapping: %s ==> %s' % (k, v))
+                #logging.info('found mapping: %s ==> %s' % (k, v))
                 if v.primary_key:#如果是主键
                     if primaryKey:
                         #主键重复了
