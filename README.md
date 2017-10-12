@@ -2,8 +2,8 @@
   a blog website with python
    
 ## Depends ##   
-  *Datebase:Mysql
-  *Python Packages:aiohttp(异步框架),jinja2(前端模板引擎),aiomysql(数据库驱动)
+  *Datebase:Mysql  
+  *Python Packages:aiohttp(异步框架),jinja2(前端模板引擎),aiomysql(数据库驱动)  
   *frontend:bootstrap3.3.7,Font Awesome(字体图标框架)
  
 ## Structure ##  
