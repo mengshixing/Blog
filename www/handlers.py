@@ -76,7 +76,7 @@ def cookie2user(cookie_str):
         logging.exception(e)
     return None
 
-    
+#首页,默认显示日志列表   
 @get('/')
 async def blogs(request):
     
@@ -98,11 +98,31 @@ async def blogs(request):
         'blogs': blogs
 }
 
-@get('/register')
-def register():
+#日志详情页
+@get('/blog/{id}')
+async def blog_detail(id):
+    
+    page_index = get_page_index(1)    
+    blog = await Blog.find(id)
+    #num = await User.findNumber('count(id)')
+    # p = Page(num, page_index)
+    # if num == 0:
+        # blogs=()
+    # blogs = await Blog.findAll(orderBy='created_at desc', limit=(p.offset, p.limit))
+    # summary = 'Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua.'
+    # blogs = [
+        # Blog(id='1', name='Test Blog', summary=summary, created_at=time.time()-120),
+        # Blog(id='2', name='Something New', summary=summary, created_at=time.time()-3600),
+        # Blog(id='3', name='Learn Swift', summary=summary, created_at=time.time()-7200)
+    # ]
+    #blog=await Blog.find
     return {
-        '__template__': 'register.html'
+        '__template__': 'blog.html',
+        'blog': blog
 }
+
+
+
 @get('/manage')
 def manage():
     return {
@@ -129,11 +149,10 @@ def create():
     return {
         '__template__': 'edit_blog.html'
 }
-@get('/signin')
-def signin():
-    return {
-        '__template__': 'signin.html'
-}
+
+
+
+#注销
 @get('/signout')
 def signout(request):
     #request.getHeader("Referer")用于获取来源页地址
@@ -145,6 +164,14 @@ def signout(request):
     
 _RE_EMAIL = re.compile(r'^[a-z0-9\.\-\_]+\@[a-z0-9\-\_]+(\.[a-z0-9\-\_]+){1,4}$')
 _RE_SHA1 = re.compile(r'^[0-9a-f]{40}$')
+
+
+#注册页
+@get('/register')
+def register():
+    return {
+        '__template__': 'register.html'
+}
 
 #注册
 @post('/api/users')
@@ -171,7 +198,14 @@ async def api_register_user(*, email, name, passwd):
     r.content_type = 'application/json'
     r.body = json.dumps(user, ensure_ascii=False).encode('utf-8')
     return r
-
+    
+    
+#登录页
+@get('/signin')
+def signin():
+    return {
+        '__template__': 'signin.html'
+}
 #登录
 @post('/api/authenticate')
 async def authenticate(*, email, passwd):

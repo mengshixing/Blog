@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+
+{% block title %}{{ blog.name }}{% endblock %}
+
+{% block beforehead %}
+
+{% endblock %}
+
+{% block content %}
+
+
+
+    <div id="error" class="uk-width-1-1">
+    </div>
+
+    <div id="loading" class="uk-width-1-1 uk-text-center" style="display:none">
+        <span><i class="uk-icon-spinner uk-icon-medium uk-icon-spin"></i> 正在加载...</span>
+    </div>
+
+    <div id="vm" class="uk-width-2-3">
+        {{ blog.content }}
+    </div>
+
+
+{% endblock %}
+{% block afterbody %}
+    <script>
+		//markdown 预览
+
+	  
+    </script>
+{% endblock %}
