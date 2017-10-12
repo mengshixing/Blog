@@ -19,8 +19,8 @@
     +- LICENSE               <-- 代码LICENSE
 
 ## API ##
-  ### 后端API包括：
-    > 获取日志：GET /blog/{id}  
+  ### 后端API包括：
+> 获取日志：GET /blog/{id}  
     > 创建日志：POST /api/updateblog 
     > 修改日志：POST /api/updateblog/:blog_id  
     > 删除日志：POST /api/blogs/:blog_id/delete  
