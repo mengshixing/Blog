@@ -3251,3 +3251,7 @@ margin-bottom:0px;
     right: 50px;
     top: 20px;
 }
+.edit_contain{
+	position:relative;
+	margin-left:240px;
+}

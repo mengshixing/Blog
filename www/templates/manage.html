@@ -10,20 +10,48 @@
 {% endblock %}
 
 {% block content %}
-    <table class="table table-bordered table-hover">
-		<tr>
-		  <th >Title</th>
-		  <th >Comments Num</th>
-		  <th >Edit</th>
-		  <th >Delete</th>
-		</tr>
-		{% for blog in blogs %}
-        <article class="uk-article">
-			<td >{{ blog.name }}</th>
-			<th >Comments Num</th>
-			<th ><a href="/blog/{{ blog.id }}">Edit</a</th>
-			<th >Delete</th>
-		{% endfor %}    
-    </table>
+    
+	{% if __user__ and __user__.admin==1 %}
+	<div class="leftpanel">
+		<a href="/manage/blogs" class="list-group-item">Manage Blogs</a>
+		<a href="#" class="list-group-item">Manage Users</a>
+		<a href="#" class="list-group-item">Manage Comments</a>
+		<a href="/create" class="list-group-item">Create A Blog</a>
+	</div>		
+	{% endif %}
+	
+	
+	<div class="edit_contain">
+		<table class="table table-bordered">
+			<caption>日志管理</caption>
+			<thead>
+				<tr>
+				  <th>日志名称</th>
+				  <th>作者</th>
+				  <th>创建时间</th>
+				  <th>操作</th>
+				</tr>
+			</thead>
+			<tbody>
+				{% for blog in blogs %}
+				<tr >
+					<td>
+						{{blog.name}}
+					</td>
+					<td>
+						{{ blog.user_name }}
+					</td>
+					<td>
+						{{ blog.created_at|datetime }}
+					</td>
+					<td>
+						<button type="button" class="btn btn-primary btn-xs">编辑</button>
+						<button type="button" class="btn btn-primary btn-xs">删除</button>
+					</td>
+				</tr>
+				{% endfor %}
+			</tbody>
+		</table>
+	</div>
 	
 {% endblock %}

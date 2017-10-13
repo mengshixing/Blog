@@ -35,7 +35,7 @@
                     </div>
                     <div class="navbar-collapse collapse">
                         <ul class="nav navbar-nav navbar-right">
-                            <li><a href="index.html">Home</a></li>
+                            <li><a href="/">Home</a></li>
                             <li><a href="/">Blogs</a></li>
                             <li><a href="https://github.com/mengshixing/Blog">GitHub</a></li>
 							{% if __user__ %}
@@ -48,7 +48,7 @@
 										</ul>
 								</div> -->
 								{% if __user__.admin==1 %}
-								<li><a href="/manage">Manage</a></li>								
+								<li><a href="/manage/blogs">Manage</a></li>								
 								{% endif %}
 							</li>
 							{% else %}
@@ -71,14 +71,6 @@
         </div>
         <div class="section white main_content">
 			<!-- content -->
-			{% if __user__ and __user__.admin==1 %}
-			<div class="leftpanel">
-				<a href="/manage/blogs" class="list-group-item">Manage Blogs</a>
-				<a href="#" class="list-group-item">Manage Users</a>
-				<a href="#" class="list-group-item">Manage Comments</a>
-				<a href="/create" class="list-group-item">Create A Blog</a>
-			</div>		
-			{% endif %}
 			<div class="mainpanel">
 				{% block content %}
 				{% endblock %}

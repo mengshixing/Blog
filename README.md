@@ -32,7 +32,7 @@
 ### 管理页面包括：
 > 评论列表页：GET /manage/comments  
 > 日志列表页：GET /manage/blogs  
-> 创建日志页：GET /manage/blogs/create  
+> 创建日志页：GET /create 
 > 修改日志页：GET /manage/blogs/  
 > 用户列表页：GET /manage/users  
 ### 用户浏览页面包括：

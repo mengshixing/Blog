@@ -121,13 +121,6 @@ async def blog_detail(id):
         'blog': blog
 }
 
-
-
-@get('/manage')
-def manage():
-    return {
-        '__template__': 'manage.html'
-}
 @get('/manage/blogs')
 async def manage(request,*,page='1'):
     check_admin(request)    
